@@ -11,6 +11,7 @@ const config = {
       files: ["*.ts", "*.tsx"],
       parserOptions: {
         project: path.join(__dirname, "tsconfig.json"),
+        emitError: true,
       },
     },
   ],
@@ -30,7 +31,6 @@ const config = {
     "@typescript-eslint/no-unsafe-call": "off",
     "@typescript-eslint/consistent-type-imports": [
       "warn",
-
       {
         prefer: "type-imports",
         fixStyle: "inline-type-imports",
