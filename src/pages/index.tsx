@@ -78,7 +78,8 @@ const Home: NextPage = () => {
       let data = tf.tensor(inputArray as any).reshape([1, 20]);
       data = tf.cast(data, "float32");
       const prediction = model.predict(data) as any;
-      console.log(Array.from(prediction.dataSync()));
+      const tChances = Array.from(prediction.dataSync())[0] as number;
+      setPrediction(tChances);
     }
   };
   return (
@@ -94,6 +95,16 @@ const Home: NextPage = () => {
         >
           CS GO Round Prediction
         </h1>
+        <div className="flex flex-col justify-center items-center gap-2 my-6 text-white text-xl">
+          {prediction && (
+            <>
+              <span className="">Prediction Rate: {prediction.toFixed(2)}</span>
+              <span className="">
+                Will Terrorists win: {prediction > 0.5 ? "Yes" : "No"}
+              </span>
+            </>
+          )}
+        </div>
         <div className="animatedBg p-8 rounded-lg w-2/4">
           <form>
             <div className="grid grid-cols-3 gap-4">
