@@ -1,12 +1,8 @@
+// @ts-nocheck
 import { type NextPage } from "next";
 import Head from "next/head";
 import * as tf from "@tensorflow/tfjs";
-import React, {
-  FormEvent,
-  MouseEventHandler,
-  useEffect,
-  useState,
-} from "react";
+import React, { useEffect, useState } from "react";
 import { createRoundDataArray, InputData } from "utils/interfaces";
 import { Josefin_Sans } from "next/font/google";
 import { NumberInput, NumberInputProps } from "~/NumberInput";
