@@ -1,7 +1,12 @@
 import { type NextPage } from "next";
 import Head from "next/head";
 import * as tf from "@tensorflow/tfjs";
-import { useEffect, useState } from "react";
+import React, {
+  FormEvent,
+  MouseEventHandler,
+  useEffect,
+  useState,
+} from "react";
 import { createRoundDataArray, InputData } from "utils/interfaces";
 import { Josefin_Sans } from "next/font/google";
 import { NumberInput, NumberInputProps } from "~/NumberInput";
@@ -39,7 +44,15 @@ const Home: NextPage = () => {
       [name]: parseFloat(value),
     }));
   };
+  const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { value } = e.currentTarget;
+    setInputData((prev) => ({
+      ...prev,
+      bomb_planted: Boolean(value),
+    }));
+  };
   const [model, setModel] = useState<tf.LayersModel | null>(null);
+  const [prediction, setPrediction] = useState<number | null>(null);
   const [inputData, setInputData] = useState<InputData>(emptyInputData);
   const numberInputs: NumberInputProps[] = Object.entries(emptyInputData)
     .map(([name, value]) => ({
@@ -56,54 +69,14 @@ const Home: NextPage = () => {
     };
     fetchModel();
   }, []);
-  const predictModel = () => {
+  const predictModel = (e: React.MouseEvent) => {
+    e.preventDefault();
     if (model) {
-      const RandomInputCT: InputData = {
-        bomb_planted: false,
-        ct_health: 500,
-        ct_armor: 500,
-        t_armor: 0,
-        ct_helmets: 5,
-        t_helmets: 0,
-        ct_defuse_kits: 5,
-        ct_players_alive: 5,
-        ct_weapon_ak47: 0,
-        t_weapon_ak47: 1,
-        ct_weapon_awp: 0,
-        ct_weapon_m4a4: 5,
-        ct_weapon_sg553: 0,
-        t_weapon_sg553: 0,
-        ct_weapon_usps: 0,
-        ct_grenade_hegrenade: 0,
-        ct_grenade_flashbang: 0,
-        t_grenade_flashbang: 0,
-        ct_grenade_smokegrenade: 0,
-        ct_grenade_incendiarygrenade: 0,
-      };
-      const RandomInputT: InputData = {
-        bomb_planted: true,
-        ct_health: 1,
-        ct_armor: 1,
-        t_armor: 0,
-        ct_helmets: 0,
-        t_helmets: 0,
-        ct_defuse_kits: 0,
-        ct_players_alive: 1,
-        ct_weapon_ak47: 0,
-        t_weapon_ak47: 5,
-        ct_weapon_awp: 0,
-        ct_weapon_m4a4: 0,
-        ct_weapon_sg553: 0,
-        t_weapon_sg553: 0,
-        ct_weapon_usps: 0,
-        ct_grenade_hegrenade: 0,
-        ct_grenade_flashbang: 0,
-        t_grenade_flashbang: 0,
-        ct_grenade_smokegrenade: 0,
-        ct_grenade_incendiarygrenade: 0,
-      };
-      const Input = createRoundDataArray(RandomInputT);
-      const data = tf.tensor(Input as any).reshape([1, 20]);
+      const inputShape = model.inputs ? model.inputs[0]?.shape : null;
+      console.log(inputShape);
+      const inputArray = createRoundDataArray(inputData);
+      let data = tf.tensor(inputArray as any).reshape([1, 20]);
+      data = tf.cast(data, "float32");
       const prediction = model.predict(data) as any;
       console.log(Array.from(prediction.dataSync()));
     }
@@ -124,21 +97,36 @@ const Home: NextPage = () => {
         <div className="animatedBg p-8 rounded-lg w-2/4">
           <form>
             <div className="grid grid-cols-3 gap-4">
-              {/* <select name="" id=""></select> */}
-              {numberInputs.map((x) => (
-                <NumberInput
-                  name={x.name}
-                  value={inputData[x.name as keyof InputData] as number}
-                  handleChange={(e) => handleChange(e)}
-                  maxValue={x.maxValue}
-                  key={x.name}
-                />
-              ))}
+              <div className="flex justify-center items-center flex-col ">
+                <label htmlFor="bombSelect">bomb_planted</label>
+                <select
+                  name="bombSelect"
+                  id=""
+                  onChange={handleSelect}
+                  className="rounded-lg text-lg"
+                >
+                  <option value="true">True</option>
+                  <option value="false">False</option>
+                </select>
+              </div>
+              {numberInputs
+                .sort((a, b) => (a.name > b.name ? 1 : -1))
+                .map((x) => (
+                  <NumberInput
+                    name={x.name}
+                    value={inputData[x.name as keyof InputData] as number}
+                    handleChange={(e) => handleChange(e)}
+                    maxValue={x.maxValue}
+                    key={x.name}
+                  />
+                ))}
+
               <button
                 type="submit"
-                className="bg-white hover:bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded"
+                onClick={(e) => predictModel(e)}
+                className=" text-gray-800 font-bold py-2 px-4 rounded-lg bg-orange-500 shadow-xl hover:brightness-125 transition-all hover:translate-y-3"
               >
-                Submit
+                Predict The Winner
               </button>
             </div>
           </form>
