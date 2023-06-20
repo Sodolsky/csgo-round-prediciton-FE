@@ -22,7 +22,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
         value={value}
         onChange={handleChange}
         max={maxValue}
-        className="rounded-lg border p-1 focus:scale-125 transition-transform"
+        className="rounded-lg border p-2 focus:scale-125 transition-transform"
       />
     </div>
   );
